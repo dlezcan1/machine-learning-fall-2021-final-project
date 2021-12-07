@@ -1,9 +1,12 @@
 import torch
 from torch import nn
+from torch.nn import BCEWithLogitsLoss
 import torch.nn.functional as F
 
 
-class FocalLoss( nn.Module ):
+
+
+class FocalLoss( BCEWithLogitsLoss ):
     """ Implementation of Focal Loss
 
         From:
@@ -13,12 +16,13 @@ class FocalLoss( nn.Module ):
     """
 
     def __init__( self, gamma ):
+        super().__init__(reduction='none')
         self.gamma = gamma
 
     # __init__
 
     def forward( self, input, target ):
-        BCELoss = F.binary_cross_entropy_with_logits( input, target, reduction='none' )
+        BCELoss = super().forward( input, target )
         pt = torch.exp( -BCELoss )
 
         if self.gamma == 0:
