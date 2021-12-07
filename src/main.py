@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix
-from models import FeedForward
+from models import FeedForward, FeedForwardNLayers
 from metrics import metrics
 import torch
 import torch.nn.functional as F
@@ -30,6 +30,7 @@ def get_args():
     p.add_argument( "--learning-rate", type=float, default=0.001 )
     p.add_argument( "--loss-function", type=str, default='BCE' )
     p.add_argument( '--focal-gamma', type=float, default=2 )  # chosen from paper
+    p.add_argument("--hidden-layers", type=int, nargs="+", default=None)
 
     return p.parse_args()
 
@@ -46,8 +47,10 @@ def train( args ):
             stratify=train_labels
             )
 
-    if args.model == 'NN':
+    if args.model == 'NN' and args.hidden_layers is None:
         model = FeedForward()
+    elif args.model == "NN" and args.hidden_layers is not None:
+        model = FeedForwardNLayers(args.hidden_layers)
     # else:
     #     model =
 
