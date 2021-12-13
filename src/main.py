@@ -1,3 +1,4 @@
+import copy
 import csv
 import argparse as ap
 import numpy as np
@@ -117,7 +118,7 @@ def train( args ):
 
             if val_accuracy > best_val_acc:
                 best_val_acc = val_accuracy
-                best_model = model
+                best_model = copy.deepcopy(model)
 
             step_metrics = {
                     'step'             : step,
@@ -142,7 +143,7 @@ def train( args ):
                     )
             logger.writerow( step_metrics )
     log_f.close()
-    print( 'Done training' )
+    print( f'Done training with accuracy: {best_val_acc*100}%' )
     torch.save( best_model, args.model_save )
 
 
@@ -166,15 +167,13 @@ def prediction( model, data, label, loss_fn ):
 #     return accuracy, specificity, sensitivity, precision, recall, f1_score
 
 def test( args ):
-    pred = [ ]
     model = torch.load( args.model_save )
     x = pd.read_csv( args.data_dir )
     if torch.cuda.is_available():
         x.cuda()
     logits = model( x )
-    pred.append( torch.max( logits, 1 )[ 1 ].item() )
+    pred = torch.sigmoid(logits).round().to_numpy()
     print( 'Storing predictions at {args.pred_file}' )
-    pred = np.array( pred )
     np.savetext( args.pred_file, pred, fmt='%d' )
 
 
