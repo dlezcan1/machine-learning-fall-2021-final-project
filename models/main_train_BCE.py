@@ -1,4 +1,4 @@
-
+import copy
 import csv
 import argparse as ap
 import numpy as np
@@ -86,7 +86,7 @@ def train(
 
             if val_accuracy > best_val_acc:
                 best_val_acc = val_accuracy
-                best_model = model
+                best_model = copy.deepcopy(model)
 
             step_metrics = {
                     'step'             : step,
@@ -194,7 +194,7 @@ def main():
                         # compare accuracy and store current best model
                         if (curr_acc > best_val_acc):
                             best_val_acc = curr_acc
-                            best_model = curr_model
+                            best_model = copy.deepcopy(curr_model)
                             best_params = [ steps, bs, lr, loss, hidden_layers ]
 
 
